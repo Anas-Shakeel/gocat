@@ -11,10 +11,8 @@ import (
 )
 
 func main() {
-	info, _ := os.Stdin.Stat()
-
 	// Is Stdin a TTY? (terminal)
-	if info.Mode()&os.ModeCharDevice != 0 { // Bitwise AND
+	if isPiped() {
 		fmt.Println("The command is intended to work with pipes.")
 		fmt.Println(`Usage: echo "text to color" | gocat`)
 		os.Exit(1)
@@ -26,6 +24,12 @@ func main() {
 	// Print the text
 	printRainbow(string(text), 0.1)
 
+}
+
+// Returns true if the stdin is being piped, otherwise false
+func isPiped() bool {
+	info, _ := os.Stdin.Stat()
+	return info.Mode()&os.ModeCharDevice != 0 // Bitwise AND
 }
 
 // Reads text from pipe (stdin) and returns it as a string
