@@ -80,16 +80,12 @@ func rgb(i int, f float64) (int, int, int) {
 
 }
 
-// printRainbow prints `output` text with rainbow colors in terminal.
-// text: the text to print
-// frequency: controls gradient spread(ness)
-func printRainbow(text string, frequency float64) {
-	// Colorize the text
-	for i := 0; i < len(text); i++ {
-		r, g, b := rgb(i, frequency) // Generate RGB based on i
-		fmt.Printf("\033[38;2;%d;%d;%dm%c\033[0m", r, g, b, text[i])
-	}
-	// fmt.Println()
+// printRainbow prints `text` as rainbow-style text in terminal.
+// This method calls `makeRainbow()` under the hood.
+// text: the text to color
+// spread: controls gradient spread(ness)
+func printRainbow(text string, spread float64) {
+	fmt.Println(makeRainbow(text, spread))
 }
 
 // makeRainbow colors `text` as rainbow-style text and returns it.
