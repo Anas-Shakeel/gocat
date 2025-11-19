@@ -13,16 +13,25 @@ import (
 func main() {
 	info, _ := os.Stdin.Stat()
 
-	var text []rune
-
-	// Is this (stdin) a TTY? (terminal)
+	// Is Stdin a TTY? (terminal)
 	if info.Mode()&os.ModeCharDevice != 0 { // Bitwise AND
 		fmt.Println("The command is intended to work with pipes.")
 		fmt.Println(`Usage: echo "text to color" | gocat`)
 		os.Exit(1)
 	}
 
+	// Read from Pipe
+	text := readFromPipe()
+
+	// Print the text
+	printRainbow(string(text), 0.1)
+
+}
+
+// Reads text from pipe (stdin) and returns it as a string
+func readFromPipe() string {
 	// Read from Stdin
+	var text []rune
 	reader := bufio.NewReader(os.Stdin)
 	for {
 		input, _, err := reader.ReadRune()
@@ -32,9 +41,7 @@ func main() {
 		text = append(text, input)
 	}
 
-	// Print the text
-	printRainbow(string(text), 0.1)
-
+	return string(text)
 }
 
 /*
