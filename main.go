@@ -91,3 +91,18 @@ func printRainbow(text string, frequency float64) {
 	}
 	// fmt.Println()
 }
+
+// makeRainbow colors `text` as rainbow-style text and returns it.
+// text: the text to color
+// spread: controls gradient spread(ness)
+func makeRainbow(text string, spread float64) string {
+	var output strings.Builder
+
+	// Colorize the text
+	for i := 0; i < len(text); i++ {
+		r, g, b := rgb(i, spread) // Generate RGB based on i
+		output.WriteString(fmt.Sprintf("\033[38;2;%d;%d;%dm%c\033[0m", r, g, b, text[i]))
+	}
+
+	return output.String()
+}
