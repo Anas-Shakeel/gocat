@@ -4,32 +4,50 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"io"
 	"math"
 	"os"
+	"strings"
 )
 
+// Named command-lineargument
+var spread = flag.Float64("spread", 0.1, "controls how wide the gradient is spread")
+
 func main() {
-	// Is Stdin a TTY? (terminal)
-	if isPiped() {
-		fmt.Println("The command is intended to work with pipes.")
-		fmt.Println(`Usage: echo "text to color" | gocat`)
-		os.Exit(1)
+	// Custom usage text
+	flag.Usage = func() {
+		fmt.Fprintf(flag.CommandLine.Output(), "Usage: %s [OPTIONS] <text>\n", os.Args[0])
+		flag.PrintDefaults()
 	}
 
-	// Read from Pipe
-	text := readFromPipe()
+	// Parse command line arguments
+	flag.Parse()
+	positionalArgs := flag.Args()
 
-	// Print the text
-	printRainbow(string(text), 0.1)
+	switch {
+	case isPiped():
+		// Read from stdin
+		text := readFromPipe()
+		printRainbow(text, *spread)
 
+	case len(positionalArgs) > 0:
+		// Read text from cmd args
+		text := strings.Join(positionalArgs, " ")
+		printRainbow(text, *spread)
+
+	default:
+		// Default case, Quit!
+		flag.Usage()
+		os.Exit(1)
+	}
 }
 
 // Returns true if the stdin is being piped, otherwise false
 func isPiped() bool {
 	info, _ := os.Stdin.Stat()
-	return info.Mode()&os.ModeCharDevice != 0 // Bitwise AND
+	return info.Mode()&os.ModeCharDevice == 0 // Bitwise AND
 }
 
 // Reads text from pipe (stdin) and returns it as a string
