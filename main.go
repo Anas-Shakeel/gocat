@@ -7,18 +7,21 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"log"
 	"math"
 	"os"
 	"strings"
 )
 
-// Named command-lineargument
-var spread = flag.Float64("spread", 0.1, "controls how wide the gradient is spread")
+// Named command-line arguments
+// var spread = flag.Float64("spread", 0.1, "controls how wide the gradient is spread")
+var spread = flag.Float64("spread", 0.1, "gradient spread (lower values make smoother gradients)")
+var textFile = flag.String("file", "", "Read input from a file")
 
 func main() {
 	// Custom usage text
 	flag.Usage = func() {
-		fmt.Fprintf(flag.CommandLine.Output(), "Usage: %s [OPTIONS] <text>\n", os.Args[0])
+		fmt.Fprintln(flag.CommandLine.Output(), getCustomUsage())
 		flag.PrintDefaults()
 	}
 
@@ -32,6 +35,14 @@ func main() {
 		text := readFromPipe()
 		printRainbow(text, *spread)
 
+	case *textFile != "":
+		// Read input from file
+		text, err := readFromFile(*textFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		printRainbow(string(*text), *spread)
+
 	case len(positionalArgs) > 0:
 		// Read text from cmd args
 		text := strings.Join(positionalArgs, " ")
@@ -42,6 +53,13 @@ func main() {
 		flag.Usage()
 		os.Exit(1)
 	}
+}
+
+// Returns the custom usage text to be used in help message.
+func getCustomUsage() string {
+	return `Usage: gocat [OPTIONS] [text...]
+
+Options:`
 }
 
 // Returns true if the stdin is being piped, otherwise false
@@ -64,6 +82,23 @@ func readFromPipe() string {
 	}
 
 	return string(text)
+}
+
+// Reads file and returns it's contents as []byte slice (*[]byte, a pointer actually!)
+func readFromFile(filename string) (*[]byte, error) {
+	// Open file to read
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	content, err := io.ReadAll(file)
+	if err != nil {
+		return nil, err
+	}
+
+	return &content, nil
 }
 
 /*
