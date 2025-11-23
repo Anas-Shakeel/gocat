@@ -2,6 +2,8 @@
 
 _A tiny, fast rainbow text printer for your terminal._
 
+![gocat-demo](https://github.com/Anas-Shakeel/gocat/blob/main/assets/demo.png?raw=true)
+
 `gocat` takes any text, via **pipes**, **text files** or **command-line arguments**, and prints it as smoothly colored **rainbow text** using truecolor ANSI escape codes.
 
 ---
